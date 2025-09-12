@@ -54,5 +54,35 @@ return [
             // 'fontsize' => '10px 12px 13px 14px 16px 18px 20px',
             // 'fontfamily' => 'Tahoma=tahoma,arial,helvetica,sans-serif;',
         ]
-    ]
+    ],
+
+    /**
+     * Optional external file manager integration for TinyMCE's file picker.
+     *
+     * If enabled, the editor will open the configured URL inside TinyMCE's
+     * window manager and expect a postMessage containing an object with a
+     * `url` property to be sent back from the file manager window.
+     */
+    'file_manager' => [
+        'url' => '/file-manager00',
+        'title' => 'File Manager',
+        'width' => 1000,
+        'height' => 400,
+    ],
+
+    // Disk used for file attachments and file manager root
+    'fileAttachmentsDisk' => env('TINYMCE_FILE_ATTACHMENTS_DISK', 'public'),
+
+    // Allowed upload types and max size (in kilobytes)
+    'fileAttachmentsTypes' => [
+        'image' => ['jpg', 'jpeg', 'png', 'gif', 'webp'],
+        'media' => ['mp4', 'mp3', 'webm', 'ogg'],
+        'file' => ['pdf', 'doc', 'docx', 'xls', 'xlsx', 'txt', 'zip', 'rar'],
+    ],
+    'fileAttachmentsMaxSize' => [
+        // type => size in KB
+        'image' => 10048, // 2 MB
+        'media' => 10240, // 10 MB
+        'file' => 5120, // 5 MB
+    ],
 ];

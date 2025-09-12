@@ -1,7 +1,9 @@
 <?php
 
-namespace Amirhellboy\FilamentTinymceEditor;
+namespace Amirhellboy\FilamentTinymceEditor\Providers;
 
+use Amirhellboy\FilamentTinymceEditor\Http\Middleware\EnsureTinymcePermission;
+use Amirhellboy\FilamentTinymceEditor\Tiny;
 use Filament\Support\Assets\Js;
 use Filament\Support\Facades\FilamentAsset;
 use Spatie\LaravelPackageTools\Commands\InstallCommand;
@@ -18,14 +20,19 @@ class TinymceditorServiceProvider extends PackageServiceProvider
             ->hasInstallCommand(
                 function (InstallCommand $command) {
                     $command->publishConfigFile()
-                        ->copyAndRegisterServiceProviderInApp();
-                    //->askToStarRepoOnGitHub($this->getAssetPackageName());
+                        ->copyAndRegisterServiceProviderInApp()
+                        ->askToStarRepoOnGitHub($this->getAssetPackageName());
                 }
             );
     }
 
     public function packageRegistered(): void
     {
+        if ($this->app->runningInConsole()) {
+            $this->commands([
+                \Amirhellboy\FilamentTinymceEditor\Console\GrantTinymceEditorPermission::class,
+            ]);
+        }
     }
 
     public function packageBooted(): void
@@ -33,6 +40,20 @@ class TinymceditorServiceProvider extends PackageServiceProvider
         $tinyVersion = config('filament-tinymce-editor.version.tiny', '8.0.2');
         $tiny_licence_key = config('filament-tinymce-editor.version.licence_key', 'no-api-key');
         $tiny_languages = Tiny::getLanguages();
+
+        // Register package routes automatically
+        \Amirhellboy\FilamentTinymceEditor\Controllers\FileManagerController::routes();
+
+        // Register middleware alias for easier use in routes
+        app('router')->aliasMiddleware('tinymce.permission', EnsureTinymcePermission::class);
+        // Publish migration
+        $this->publishes([
+            __DIR__ . '/../../database/migrations/create_tinymce_permissions_table.php.stub' => database_path('migrations/2025_09_12_140932_create_tinymce_permissions_table.php'),
+        ], 'tinymce-migrations');
+
+        // Load package views
+        $this->loadViewsFrom(__DIR__ . '/../resources/views', 'filament-tinymce-editor');
+
 
         $languages = [];
         $optional_languages = config('filament-tinymce-editor.languages', []);
@@ -58,7 +79,6 @@ class TinymceditorServiceProvider extends PackageServiceProvider
 
         FilamentAsset::register([
             Js::make('tinymce', $mainJs),
-            //Js::make('tinymce-editor', __DIR__ . '/../resources/js/tinymce-editor.js'),
             ...$languages,
         ], package: $this->getAssetPackageName());
     }
@@ -67,4 +87,5 @@ class TinymceditorServiceProvider extends PackageServiceProvider
     {
         return 'amirhellboy/filament-tinymce-editor';
     }
+
 }

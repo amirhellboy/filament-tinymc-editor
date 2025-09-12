@@ -56,50 +56,23 @@
                     promotion: false,
                     license_key: '{{ $getLicenseKey() }}',
                     image_advtab: @js($getimageAdvtab()),
-                    images_upload_handler: (blobInfo, success, failure, progress) => {
-                        if (!blobInfo.blob()) return
-
-                        $wire.upload(`componentFileAttachments.{{ $getStatePath() }}`, blobInfo.blob(), () => {
-                            $wire
-                                .callSchemaComponentMethod(
-                                    '{{ $getKey() }}',
-                                    'saveUploadedFileAttachmentAndGetUrl',
-                                )
-                                .then((url) => {
-                                    if (!url) {
-                                        failure('{{ __('Error uploading file') }}')
-                                        return
-                                    }
-                                    success(url)
-                                })
-                        })
-                    },
                     file_picker_callback: (cb, value, meta) => {
-                        const input = document.createElement('input');
-                        input.setAttribute('type', 'file');
-                        input.addEventListener('change', (e) => {
-                            const file = e.target.files[0];
-                            const reader = new FileReader();
-                            reader.addEventListener('load', () => {
-                                $wire.upload(`componentFileAttachments.{{ $getStatePath() }}`, file, () => {
-                                    $wire
-                                        .callSchemaComponentMethod(
-                                            '{{ $getKey() }}',
-                                            'saveUploadedFileAttachmentAndGetUrl',
-                                        )
-                                        .then((url) => {
-                                            if (!url) {
-                                                cb('{{ __('Error uploading file') }}')
-                                                return
-                                            }
-                                            cb(url)
-                                        })
-                                })
-                            });
-                            reader.readAsDataURL(file);
+                        let fmUrl = '{{ route('tinymc-editor.file-manager') }}';
+                        const width = {{ $getFileManagerWidth() }};
+                        const height = {{ $getFileManagerHeight() }};
+                        const title = 'File Manager';
+                        const win = tinymce.activeEditor.windowManager.openUrl({
+                            title,
+                            url: fmUrl,
+                            width,
+                            height,
+                            onMessage: (api, data) => {
+                                if (data?.url) {
+                                    cb(data.url);
+                                    api.close();
+                                }
+                            },
                         });
-
-                        input.click();
                     },
 
                     setup: function(editor) {
@@ -107,19 +80,22 @@
                             window.tinySettingsCopy = [];
                         }
 
-                        // Add null check for editor.settings to prevent modal errors
-                        if (editor.settings && editor.settings.id && !window.tinySettingsCopy.some(obj => obj.id === editor.settings.id)) {
-                            window.tinySettingsCopy.push(editor.settings);
+                        if (
+                            editor &&
+                            editor.settings &&
+                            typeof editor.settings.id !== 'undefined'
+                        ) {
+                            if (!window.tinySettingsCopy.some(obj => obj.id === editor.settings.id)) {
+                                window.tinySettingsCopy.push(editor.settings);
+                            }
                         }
 
                         editor.on('blur', function(e) {
-                            if (editor && editor.getContent) {
-                                state = editor.getContent()
-                            }
+                            state = editor.getContent()
                         })
 
                         editor.on('init', function(e) {
-                            if (state != null && editor && editor.setContent) {
+                            if (state != null) {
                                 editor.setContent(state)
                             }
                         })
@@ -148,10 +124,8 @@
                         })
 
                         function putCursorToEnd() {
-                            if (editor && editor.selection && editor.getBody) {
-                                editor.selection.select(editor.getBody(), true);
-                                editor.selection.collapse(false);
-                            }
+                            editor.selection.select(editor.getBody(), true);
+                            editor.selection.collapse(false);
                         }
 
                         $watch('state', function(newstate) {
@@ -159,12 +133,13 @@
                             // around even after this component is torn down. Which means that we need to check
                             // that editor.container exists. If it doesn't exist we do nothing because that means
                             // the editor was removed from the DOM
-                            if (editor && editor.container && editor.getContent && editor.resetContent && newstate !== editor.getContent()) {
+                            if (editor.container && newstate !== editor.getContent()) {
                                 editor.resetContent(newstate || '');
                                 putCursorToEnd();
                             }
                         });
                     },
+
 
                 }).render();
             });

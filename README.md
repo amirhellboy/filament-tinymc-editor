@@ -5,16 +5,30 @@ A [TineMce](https://www.tiny.cloud/) integration for [Filament](https://filament
 
 ## Installation
 
-Install the package via composer
+1-Install the package via composer
 
 ```bash
 composer require amirhellboy/filament-tinymce-editor
 ```
 
-Publish assets
+2-Publish assets
 
 ```bash
-php artisan vendor:publish --provider="Amirhellboy\FilamentTinymceEditor\TinymceditorServiceProvider"
+php artisan vendor:publish --provider="Amirhellboy\FilamentTinymceEditor\Providers\TinymceditorServiceProvider"
+```
+
+3-Migrate Database
+
+```bash
+php artisan migrate
+```
+
+4-For Add User Access To FileManager
+
+Example UserId = 1
+
+```bash
+php artisan tinymce:editor --user=1
 ```
 
 ## Usage

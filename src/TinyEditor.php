@@ -37,10 +37,10 @@ class TinyEditor extends Field implements Contracts\CanBeLengthConstrained
     protected bool $convertUrls = true;
     protected array|\Closure $customConfigs = [];
     protected bool $imageAdvtab = false;
-
+    protected string $fileManagerTitle;
+    protected int $fileManagerWidth;
+    protected int $fileManagerHeight;
     ////////
-
-//    protected string $template;
 
     protected function setUp(): void
     {
@@ -49,6 +49,9 @@ class TinyEditor extends Field implements Contracts\CanBeLengthConstrained
         $this->language = app()->getLocale();
         $this->direction = config('filament-tinymce-editor.direction', 'ltr');
         $this->darkMode = config('filament-tinymce-editor.darkMode', 'auto');
+        $this->fileManagerWidth = config('filament-tinymce-editor.file_manager.width', '1200');
+        $this->fileManagerHeight = config('filament-tinymce-editor.file_manager.height', '400');
+        $this->fileManagerTitle = config('filament-tinymce-editor.file_manager.title', 'File Manager');
     }
 
     public function getLicenseKey(): string
@@ -136,8 +139,8 @@ class TinyEditor extends Field implements Contracts\CanBeLengthConstrained
         return match ($this->evaluate($this->language)) {
             'ar' => 'ar',
             'az' => 'az',
-            'bg' => 'bg_BG',
-            'bn' => 'bn_BD',
+            'bg' => 'bg-BG',
+            'bn' => 'bn-BD',
             'ca' => 'ca',
             'cs' => 'cs',
             'cy' => 'cy',
@@ -151,39 +154,41 @@ class TinyEditor extends Field implements Contracts\CanBeLengthConstrained
             'eu' => 'eu',
             'fa' => 'fa',
             'fi' => 'fi',
-            'fr' => 'fr_FR',
+            'fr' => 'fr-FR',
             'ga' => 'ga',
             'gl' => 'gl',
-            'he' => 'he_IL',
+            'he' => 'he-IL',
             'hr' => 'hr',
-            'hu' => 'hu_HU',
+            'hu' => 'hu-HU',
             'hy' => 'hy',
             'id' => 'id',
-            'is' => 'is_IS',
+            'is' => 'is-IS',
             'it' => 'it',
             'ja' => 'ja',
             'kab' => 'kab',
             'kk' => 'kk',
-            'ko' => 'ko_KR',
+            'ko' => 'ko-KR',
             'ku' => 'ku',
             'lt' => 'lt',
             'lv' => 'lv',
-            'nb' => 'nb_NO',
+            'nb' => 'nb-NO',
             'nl' => 'nl',
             'oc' => 'oc',
             'pl' => 'pl',
-            'pt_PT' => 'pt_PT',
-            'pt_BR' => 'pt_BR',
+            'pt_PT' => 'pt-PT',
+            'pt_BR' => 'pt-BR',
+            'pt-PT' => 'pt-PT',
+            'pt-BR' => 'pt-BR',
             'ro' => 'ro',
             'ru' => 'ru',
             'sk' => 'sk',
             'sl' => 'sl',
             'sq' => 'sq',
             'sr' => 'sr',
-            'sv' => 'sv_SE',
+            'sv' => 'sv-SE',
             'ta' => 'ta',
             'tg' => 'tg',
-            'th' => 'th_TH',
+            'th' => 'th-TH',
             'tr' => 'tr',
             'ug' => 'ug',
             'uk' => 'uk',
@@ -191,9 +196,9 @@ class TinyEditor extends Field implements Contracts\CanBeLengthConstrained
             'zh' => 'zh-Hans',
             'zh-CN' => 'zh-Hans',
             'zh-TW' => 'zh-Hant',
-            'zh-HK' => 'zh_HK',
-            'zh-MO' => 'zh_MO',
-            'zh-SG' => 'zh_SG',
+            'zh-HK' => 'zh-HK',
+            'zh-MO' => 'zh-MO',
+            'zh-SG' => 'zh-SG',
             default => 'en',
         };
     }
@@ -430,6 +435,44 @@ class TinyEditor extends Field implements Contracts\CanBeLengthConstrained
     public function profile(string $profile): static
     {
         $this->profile = $profile;
+
+        return $this;
+    }
+
+    /**
+     * File manager integration getters.
+     */
+
+    public function getFileManagerUrl(): string
+    {
+        return $this->fileManagerUrl;
+    }
+
+    public function getFileManagerTitle(): string
+    {
+        return $this->fileManagerTitle;
+    }
+
+    public function getFileManagerWidth(): int
+    {
+        return $this->fileManagerWidth;
+    }
+
+    public function FileManagerWidth(int $width): static
+    {
+        $this->fileManagerWidth = $width;
+
+        return $this;
+    }
+
+    public function getFileManagerHeight(): int
+    {
+        return $this->fileManagerHeight;
+    }
+
+    public function FileManagerHeight(int $height): static
+    {
+        $this->fileManagerHeight = $height;
 
         return $this;
     }

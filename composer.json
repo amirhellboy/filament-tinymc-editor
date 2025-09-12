@@ -1,6 +1,6 @@
 {
     "name": "amirhellboy/filament-tinymce-editor",
-    "description": "A TinyMce editor component for Filament",
+    "description": "A TinyMce editor component With File Manager for Filament",
     "license": "MIT",
     "keywords": [
         "laravel",
@@ -27,10 +27,8 @@
     "extra": {
         "laravel": {
             "providers": [
-                "Amirhellboy\\FilamentTinymceEditor\\TinymceditorServiceProvider"
+                "Amirhellboy\\FilamentTinymceEditor\\Providers\\TinymceditorServiceProvider"
             ]
         }
-    },
-    "minimum-stability": "stable",
-    "prefer-stable": true
+    }
 }
